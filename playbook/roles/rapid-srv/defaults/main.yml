@@ -10,8 +10,9 @@ rapid_srv_podman_gateway: 10.89.1.1
 # data/, the git clones and built repos, see rapid-builder/docs/deployment.md.
 rapid_srv_builder_root: /opt/rapid-build
 
-# Path the repos root is mounted at inside the Caddy container
-rapid_srv_caddy_repos_root: /srv/repos
+# HTTP root Caddy serves. It is the builder's store, which only ever writes a
+# directory per repo into it, so the repo list lives next to them.
+rapid_srv_www_root: "{{ rapid_srv_builder_root }}/data/store"
 
 # How much of a build reaches Bunny: publish, dry-run or disabled. See BunnyMode
 # in rapid-builder/src/build.ts. Only disabled works without the keys below.

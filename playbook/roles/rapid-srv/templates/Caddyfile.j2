@@ -18,15 +18,8 @@
 		}
 	}
 
-{% for name in builder_repos %}
-	handle /{{ name }}/* {
-		root * /srv/build-repos
-		file_server
-	}
-
-{% endfor %}
 	handle {
-		root * {{ rapid_srv_caddy_repos_root }}
+		root * /srv/repos
 		file_server
 	}
 }

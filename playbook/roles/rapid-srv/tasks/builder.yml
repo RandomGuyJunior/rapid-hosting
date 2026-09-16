@@ -7,11 +7,6 @@
   loop:
     - config
     - data
-    # Caddy mounts the store, so it has to exist before the first build. The
-    # builder creates both itself, but a repo handed over from RapidTools is
-    # moved in before it ever builds it.
-    - data/store
-    - data/git
 - name: Write rapid builder config
   ansible.builtin.copy:
     dest: "{{ rapid_srv_builder_root }}/config/config.json"

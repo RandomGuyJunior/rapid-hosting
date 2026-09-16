@@ -8,9 +8,9 @@
 - name: Set up rapid builder
   ansible.builtin.import_tasks: builder.yml
   tags: builder
-- name: Set up containers
-  ansible.builtin.import_tasks: containers.yml
-  tags: containers
+- name: Set up Caddy
+  ansible.builtin.import_tasks: caddy.yml
+  tags: caddy
 - name: Configure monitoring
   ansible.builtin.import_tasks: monitoring.yml
   tags: monitoring

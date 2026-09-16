@@ -27,17 +27,3 @@ builder_repos:
         (claims.ref == 'refs/heads/stable' && claims.event_name == 'push' && request.branch == 'test') ||
         (claims.ref == 'refs/heads/master' && claims.event_name == 'workflow_dispatch' && request.branch.matches(r'^(pr-[0-9]+|br-.*)$'))
       )
-
-repos:
-  - name: chobby
-    origin: https://github.com/Spring-Chobby/Chobby.git
-    branch: master
-    state: absent
-  - name: byar-chobby
-    origin: https://github.com/beyond-all-reason/BYAR-Chobby.git
-    branch: master
-    state: absent
-  - name: byar
-    origin: https://github.com/beyond-all-reason/Beyond-All-Reason.git
-    branch: stable
-    state: absent
