@@ -27,6 +27,11 @@ builder_repos:
     githubRepository: RandomGuyJunior/DevelopmentEnvironment
     policy: "claims.ref == 'refs/heads/main' && !has(request.version) && request.branch == 'test'"
 
+  dev-mods:
+    githubRepository: RandomGuyJunior/DevelopmentEnvironment
+    allowModRoot: true
+    policy: "claims.ref == 'refs/heads/main' && !has(request.version) && request.branch == 'underwater-afus' && request.modRoot == 'NavalAfus'"
+
 extra_repo_names: []
 
 external_repos:
