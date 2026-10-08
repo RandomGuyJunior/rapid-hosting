@@ -1,0 +1,29 @@
+# Example only. Copy to group_vars/local/vars.yml and review before deployment.
+domain_name: randomguyrapid.duckdns.org
+rapid_srv_hostname: ""
+configure_monitoring: false
+
+builder_repos:
+  modded-chobby:
+    githubRepository: RandomGuyJunior/Modded-Chobby
+    policy: "claims.ref == 'refs/heads/master' && !has(request.version) && request.branch == 'test'"
+  randomguy-hosting:
+    githubRepository: RandomGuyJunior/randomguy-hosting
+    policy: "claims.ref == 'refs/heads/main' && !has(request.version) && request.branch == 'test'"
+  underwater-afus:
+    githubRepository: RandomGuyJunior/DevelopmentEnvironment
+    policy: "claims.ref == 'refs/heads/main' && !has(request.version) && request.branch == 'test'"
+  dev-mods:
+    githubRepository: RandomGuyJunior/DevelopmentEnvironment
+    allowModRoot: true
+    policy: >-
+      claims.ref == 'refs/heads/main' &&
+      !has(request.version) &&
+      has(request.modRoot) &&
+      request.branch.matches('^[a-z0-9]+(-[a-z0-9]+)*$')
+
+external_repos:
+  - name: byar
+    url: https://repos-cdn.beyondallreason.dev/byar
+  - name: byar-chobby
+    url: https://repos-cdn.beyondallreason.dev/byar-chobby
