@@ -10,6 +10,9 @@ inputs:
   branch:
     description: Rapid branch to publish, so the tag becomes "<repo>:<branch>".
     required: true
+  mod-root:
+    description: Optional mod directory inside the source repository.
+    default: ""
   version:
     description: Optional version name for the tag replacing the generated one.
     default: ""
@@ -34,6 +37,7 @@ runs:
         INPUT_REPO: ${{ inputs.repo }}
         INPUT_BRANCH: ${{ inputs.branch }}
         INPUT_COMMIT: ${{ inputs.commit }}
+        INPUT_MOD_ROOT: ${{ inputs.mod-root }}
         INPUT_VERSION: ${{ inputs.version }}
         INPUT_AUDIENCE: ${{ inputs.audience }}
         INPUT_RETRY_BUDGET: ${{ inputs.retry-budget }}
