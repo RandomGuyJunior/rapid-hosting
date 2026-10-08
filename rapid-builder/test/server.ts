@@ -278,8 +278,11 @@ test("an authorized request runs a build and gets its log back", async () => {
 	assert.equal(opts?.repo, config.repos.testrepo);
 
 	// The same lines on stdout, tagged with the build they belong to.
-	const succeeded = await waitForRecord((r) =>
-		r.msg.startsWith("Build succeeded: testrepo:pr-7") && r.buildId === records.findLast((entry) => entry.msg.startsWith("Build requested: repo=testrepo branch=pr-7 ") && entry.version === "1.2.3")?.buildId,
+	const expectedBuildId = records.findLast(
+		(r) => r.msg.startsWith("Build requested: repo=testrepo branch=pr-7 ") && r.version === "1.2.3",
+	)?.buildId;
+	const succeeded = await waitForRecord(
+		(r) => r.msg.startsWith("Build succeeded: testrepo:pr-7") && r.buildId === expectedBuildId,
 	);
 	assert.equal(succeeded.level, "info");
 	assert.equal(succeeded.repo, "testrepo");
