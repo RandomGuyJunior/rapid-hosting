@@ -23,3 +23,19 @@
 		file_server
 	}
 }
+
+moddedbar.duckdns.org {
+	handle /find {
+		reverse_proxy host.containers.internal:8301
+	}
+	handle /maps.json {
+		reverse_proxy host.containers.internal:8301
+	}
+	handle /github-webhook {
+		reverse_proxy host.containers.internal:8302
+	}
+	handle_path /maps/* {
+		root * /srv/maps
+		file_server
+	}
+}

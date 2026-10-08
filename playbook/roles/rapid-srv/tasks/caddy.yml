@@ -48,6 +48,7 @@
     volumes:
       - '/opt/caddy/config:/etc/caddy:ro'
       - '{{ rapid_srv_www_root }}:/srv/repos:idmap,ro'
+      - '/srv/moddedbar-maps/maps:/srv/maps:idmap,ro'
       - 'caddy_data:/data:idmap'
       - 'caddy_config:/config:idmap'
     network: priv.network

@@ -11,7 +11,7 @@ Authorization: Bearer <GitHub Actions OIDC token>
 ```
 
 The parameters are `BuildParams` in [src/server.ts](../src/server.ts), with the
-values each one accepts. `version` is optional, the rest are required.
+values each one accepts. `version` and `modRoot` are optional; the other parameters are required. `modRoot` selects a relative directory inside the checked-out source repository and is accepted only for configured repositories with `allowModRoot: true`. The path must consist of alphanumeric, underscore or hyphen components separated by `/`. Use an explicit authorization policy to restrict which mod path may publish to each Rapid branch.
 
 `repo` and `branch` together are the rapid tag clients fetch, so the build
 above becomes `byar:pr-1234`. rapid-buildgit also publishes

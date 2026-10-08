@@ -47,6 +47,7 @@ const config = parseConfig({
 	// to reach a verdict for the branches these tests publish.
 	repos: {
 		testrepo: {
+			allowModRoot: true,
 			githubRepository: "test/repo",
 			policy: "request.branch.matches('^pr-[0-9]+$') || request.branch.matches('^release/')",
 		},
@@ -208,11 +209,20 @@ test("a malformed build request is refused before any policy runs", async () => 
 		[{ version: "../evil" }, "version outside the global limits"],
 		[{ version: "out/../side" }, "version pointing outside its own directory"],
 		[{ commit: "HEAD" }, "commit is not a sha"],
+		[{ modRoot: "../outside" }, "mod directory traversal"],
+		[{ modRoot: "/absolute" }, "absolute mod directory"],
+		[{ modRoot: "valid//invalid" }, "empty mod directory component"],
 	];
 	for (const [params, why] of cases) {
 		assert.equal((await build(token, params)).status, 400, why);
 	}
 	assert.equal(builds.length, 0, "no build was started");
+});
+
+test("requested mod directory is passed through to the build", async () => {
+	const res = await build(await mint(), { modRoot: "NavalAfus" });
+	assert.equal(res.status, 200);
+	assert.equal(builds.at(-1)?.modRoot, "NavalAfus");
 });
 
 test("what the policy refuses stays refused, and only we learn why", async () => {
