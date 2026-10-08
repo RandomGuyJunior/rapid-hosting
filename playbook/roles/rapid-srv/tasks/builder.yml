@@ -36,7 +36,7 @@
   containers.podman.podman_container:
     name: rapid-build
     state: quadlet
-    image: ghcr.io/beyond-all-reason/rapid-builder:latest
+    image: "{{ rapid_srv_builder_image | default('ghcr.io/beyond-all-reason/rapid-builder:latest') }}"
     network: priv.network
     log_driver: journald
     # On SIGTERM the service finishes the builds in flight first, see

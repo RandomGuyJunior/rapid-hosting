@@ -16,6 +16,10 @@ version_arg=()
 if [ -n "$INPUT_VERSION" ]; then
 	version_arg=(--data-urlencode "version=$INPUT_VERSION")
 fi
+mod_root_arg=()
+if [ -n "${INPUT_MOD_ROOT:-}" ]; then
+	mod_root_arg=(--data-urlencode "modRoot=$INPUT_MOD_ROOT")
+fi
 headers="$RUNNER_TEMP/rapid-build-headers.txt"
 log="$RUNNER_TEMP/rapid-build.log"
 
@@ -32,7 +36,7 @@ while :; do
 	rc=0
 	curl -sS --no-buffer --max-time 3600 -X POST \
 		--get --data-urlencode "repo=$INPUT_REPO" --data-urlencode "branch=$INPUT_BRANCH" \
-		--data-urlencode "commit=$INPUT_COMMIT" "${version_arg[@]}" --dump-header "$headers" \
+		--data-urlencode "commit=$INPUT_COMMIT" "${version_arg[@]}" "${mod_root_arg[@]}" --dump-header "$headers" \
 		-H "Authorization: Bearer $token" "$INPUT_URL" \
 		| tee "$log" || rc=$?
 	echo "::endgroup::"
