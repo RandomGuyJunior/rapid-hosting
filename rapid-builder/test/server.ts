@@ -226,6 +226,7 @@ test("requested mod directory is passed through to the build", async () => {
 });
 
 test("what the policy refuses stays refused, and only we learn why", async () => {
+	const buildsBefore = builds.length;
 	// test/policy.ts covers which requests a policy lets through. Here we check
 	// both ways a denial can arrive.
 	const cases: [Record<string, unknown>, Record<string, string>, string][] = [
@@ -242,7 +243,7 @@ test("what the policy refuses stays refused, and only we learn why", async () =>
 	const record = await waitForRecord((r) => r.msg === "Request rejected" && r.status === 403);
 	assert.equal(record.level, "info");
 	assert.match(String(record.reason), /token repository is|policy returned/);
-	assert.equal(builds.length, 0, "no build was started");
+	assert.equal(builds.length, buildsBefore, "no build was started");
 });
 
 test("an authorized request runs a build and gets its log back", async () => {
