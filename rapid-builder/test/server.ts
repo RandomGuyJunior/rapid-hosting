@@ -279,7 +279,7 @@ test("an authorized request runs a build and gets its log back", async () => {
 
 	// The same lines on stdout, tagged with the build they belong to.
 	const succeeded = await waitForRecord((r) =>
-		r.msg.startsWith("Build succeeded: testrepo:pr-7"),
+		r.msg.startsWith("Build succeeded: testrepo:pr-7") && r.buildId === records.findLast((entry) => entry.msg.startsWith("Build requested: repo=testrepo branch=pr-7 ") && entry.version === "1.2.3")?.buildId,
 	);
 	assert.equal(succeeded.level, "info");
 	assert.equal(succeeded.repo, "testrepo");
@@ -369,6 +369,8 @@ test("a failed build cuts the response short, and frees the repo", async () => {
 	const before = await counter(metrics.buildsTotal, { repo: "testrepo", outcome: "failure" });
 	onBuild = async (opts) => {
 		opts.log("$ rapid-buildgit ...");
+		// Let the client receive response headers before simulating a broken stream.
+		await sleep(20);
 		throw new Error("buildgit exploded");
 	};
 
