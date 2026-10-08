@@ -2,7 +2,7 @@ name: Rapid Builder CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, dev]
     paths:
       - rapid-builder/**
       - .github/workflows/rapid-builder-ci.yaml
@@ -68,9 +68,9 @@ jobs:
 
       - run: docker run --rm rapid-build-e2e
 
-  # Only on main in the upstream repo, and only once both test jobs are green.
+  # Publish fork development images only after both test jobs pass.
   publish:
-    if: ${{ github.event_name == 'push' && github.repository == 'beyond-all-reason/rapid-hosting' }}
+    if: ${{ github.event_name == 'push' && github.repository == 'RandomGuyJunior/rapid-hosting' && github.ref == 'refs/heads/dev' }}
     needs: [ci, e2e]
     runs-on: ubuntu-latest
     permissions:
@@ -94,7 +94,7 @@ jobs:
         with:
           images: ghcr.io/${{ github.repository_owner }}/rapid-builder
           tags: |
-            type=raw,value=latest
+            type=raw,value=dev
             type=sha,format=long
 
       - id: build
