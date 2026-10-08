@@ -1,0 +1,37 @@
+domain_name: randomguyrapid.duckdns.org
+rapid_srv_hostname: ""
+
+configure_monitoring: false
+
+repos:
+  - name: randomguy-hosting
+    origin: https://github.com/RandomGuyJunior/randomguy-hosting.git
+    branch: main
+    state: absent
+
+  - name: modded-chobby
+    origin: https://github.com/RandomGuyJunior/Modded-Chobby.git
+    branch: master
+    state: absent
+
+builder_repos:
+  modded-chobby:
+    githubRepository: RandomGuyJunior/Modded-Chobby
+    policy: "claims.ref == 'refs/heads/master' && !has(request.version) && request.branch == 'test'"
+
+  randomguy-hosting:
+    githubRepository: RandomGuyJunior/randomguy-hosting
+    policy: "claims.ref == 'refs/heads/main' && !has(request.version) && request.branch == 'test'"
+
+  underwater-afus:
+    githubRepository: RandomGuyJunior/DevelopmentEnvironment
+    policy: "claims.ref == 'refs/heads/main' && !has(request.version) && request.branch == 'test'"
+
+extra_repo_names: []
+
+external_repos:
+  - name: byar
+    url: https://repos-cdn.beyondallreason.dev/byar
+
+  - name: byar-chobby
+    url: https://repos-cdn.beyondallreason.dev/byar-chobby

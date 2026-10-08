@@ -1,6 +1,9 @@
 {% for repo in repos if repo.state | default('present') == 'present' %}
 {{ repo.name }},https://{{ domain_name }}/{{ repo.name }},,
 {% endfor %}
-{% for name in extra_repo_names %}
+{% for repo in external_repos | default([]) %}
+{{ repo.name }},{{ repo.url }},,
+{% endfor %}
+{% for name in extra_repo_names | default([]) %}
 {{ name }},https://{{ domain_name }}/{{ name }},,
 {% endfor %}

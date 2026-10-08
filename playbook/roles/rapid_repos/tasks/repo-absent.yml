@@ -43,3 +43,17 @@
     - handover_git_root | length > 0
     - handover_www_root | length > 0
     - repo.name in extra_repo_names
+
+- name: Set builder ownership for handed-over {{ repo.name }}
+  ansible.builtin.file:
+    path: '{{ item }}'
+    owner: root
+    group: root
+    recurse: true
+  loop:
+    - '{{ handover_git_root }}/{{ repo.name }}'
+    - '{{ handover_www_root }}/{{ repo.name }}'
+  when:
+    - handover_git_root | length > 0
+    - handover_www_root | length > 0
+    - repo.name in extra_repo_names
