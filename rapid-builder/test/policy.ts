@@ -66,3 +66,23 @@ test("rejects policies that cannot be trusted to decide", () => {
 	// The only wording here that is ours rather than the type checker's.
 	assert.throws(() => repoWith("request.branch"), /must decide a bool, this decides string/);
 });
+
+test("policy may bind each requested Rapid tag to its corresponding mod directory", () => {
+	const policy = repoWith(
+		"claims.ref == 'refs/heads/main' && has(request.modRoot) && " +
+			"request.branch == 'underwater-afus' && request.modRoot == 'NavalAfus'",
+	);
+	const mainClaims = { ...claims, ref: "refs/heads/main" };
+	assert.equal(
+		authorize(policy, mainClaims, { ...request, branch: "underwater-afus", modRoot: "NavalAfus" }).ok,
+		true,
+	);
+	assert.equal(
+		authorize(policy, mainClaims, { ...request, branch: "underwater-afus", modRoot: "OtherMod" }).ok,
+		false,
+	);
+	assert.equal(
+		authorize(policy, mainClaims, { ...request, branch: "underwater-afus" }).ok,
+		false,
+	);
+});
