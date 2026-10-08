@@ -70,7 +70,7 @@ jobs:
 
   # Only on main in the upstream repo, and only once both test jobs are green.
   publish:
-    if: ${{ github.event_name == 'push' && github.repository == 'beyond-all-reason/rapid-hosting' }}
+    if: ${{ github.event_name == 'push' && (github.repository == 'beyond-all-reason/rapid-hosting' || github.repository == 'RandomGuyJunior/rapid-hosting') }}
     needs: [ci, e2e]
     runs-on: ubuntu-latest
     permissions:
