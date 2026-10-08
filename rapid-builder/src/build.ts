@@ -59,11 +59,14 @@ export async function runBuild(opts: {
 		const relativeRoot = path.relative(checkoutRoot, resolvedRoot);
 		if (
 			!relativeRoot ||
-			(relativeRoot === ".." || relativeRoot.startsWith(`..${path.sep}`)) ||
+			relativeRoot === ".." ||
+			relativeRoot.startsWith(`..${path.sep}`) ||
 			path.isAbsolute(relativeRoot) ||
 			!(await stat(resolvedRoot)).isDirectory()
 		) {
-			throw new Error("Invalid mod directory: must be an existing directory within the source repository");
+			throw new Error(
+				"Invalid mod directory: must be an existing directory within the source repository",
+			);
 		}
 	}
 	const args = [gitDir, selectedRoot, repo.modinfo, storeDir, commit, repoName, branch];

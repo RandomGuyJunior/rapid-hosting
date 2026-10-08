@@ -31,7 +31,10 @@ const BuildParams = z.strictObject({
 	/** Full sha of the commit to build. The caller resolves the ref it wants. */
 	commit: z.string().regex(/^[0-9a-f]{40}$/),
 	/** Optional mod subdirectory, relative to repository root. */
-	modRoot: z.string().regex(/^[a-zA-Z0-9_-]+(?:\/[a-zA-Z0-9_-]+)*$/).optional(),
+	modRoot: z
+		.string()
+		.regex(/^[a-zA-Z0-9_-]+(?:\/[a-zA-Z0-9_-]+)*$/)
+		.optional(),
 });
 
 /** Error codes that can be returned before the token is verified. */
@@ -120,7 +123,10 @@ export function createBuildServer(deps: BuildServerDeps): Server {
 		if (!repo) throw new HttpError(400, `Unknown repo: ${repoName}`);
 
 		if (modRoot && !repo.allowModRoot) {
-			throw new HttpError(403, "Mod subdirectory publishing is not enabled for this repository");
+			throw new HttpError(
+				403,
+				"Mod subdirectory publishing is not enabled for this repository",
+			);
 		}
 		const authz = authorize(repo, claims, { branch, commit, version, modRoot });
 		if (!authz.ok) {

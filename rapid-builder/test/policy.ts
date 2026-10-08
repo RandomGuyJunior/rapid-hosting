@@ -74,11 +74,19 @@ test("policy may bind each requested Rapid tag to its corresponding mod director
 	);
 	const mainClaims = { ...claims, ref: "refs/heads/main" };
 	assert.equal(
-		authorize(policy, mainClaims, { ...request, branch: "underwater-afus", modRoot: "NavalAfus" }).ok,
+		authorize(policy, mainClaims, {
+			...request,
+			branch: "underwater-afus",
+			modRoot: "NavalAfus",
+		}).ok,
 		true,
 	);
 	assert.equal(
-		authorize(policy, mainClaims, { ...request, branch: "underwater-afus", modRoot: "OtherMod" }).ok,
+		authorize(policy, mainClaims, {
+			...request,
+			branch: "underwater-afus",
+			modRoot: "OtherMod",
+		}).ok,
 		false,
 	);
 	assert.equal(
