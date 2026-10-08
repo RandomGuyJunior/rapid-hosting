@@ -1,4 +1,4 @@
-import { mkdir, readFile } from "node:fs/promises";
+import { mkdir, readFile, realpath, stat } from "node:fs/promises";
 import path from "node:path";
 import { z } from "zod";
 import { refreshVersionsEdgeRule } from "./bunny.ts";
@@ -53,6 +53,19 @@ export async function runBuild(opts: {
 	log(`Building ${repoName}:${branch} at ${commit}. Bunny mode: ${bunnyMode}`);
 
 	const selectedRoot = modRoot ?? repo.modRoot;
+	if (modRoot) {
+		const checkoutRoot = await realpath(gitDir);
+		const resolvedRoot = await realpath(path.join(checkoutRoot, modRoot));
+		const relativeRoot = path.relative(checkoutRoot, resolvedRoot);
+		if (
+			!relativeRoot ||
+			relativeRoot.startsWith("..") ||
+			path.isAbsolute(relativeRoot) ||
+			!(await stat(resolvedRoot)).isDirectory()
+		) {
+			throw new Error("Invalid mod directory: must be an existing directory within the source repository");
+		}
+	}
 	const args = [gitDir, selectedRoot, repo.modinfo, storeDir, commit, repoName, branch];
 	if (version !== undefined) args.push(version);
 	await step("rapid_buildgit", () => run("rapid-buildgit", args, { log }));
