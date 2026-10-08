@@ -119,8 +119,9 @@ export function createBuildServer(deps: BuildServerDeps): Server {
 		const repo = config.repos[repoName];
 		if (!repo) throw new HttpError(400, `Unknown repo: ${repoName}`);
 
-		if (modRoot && !repo.allowModRoot) throw new HttpError(403, "Mod subdirectory publishing is not enabled for this repository");
-		if (modRoot && !repo.policy) throw new HttpError(403, "Publishing policy required");
+		if (modRoot && !repo.allowModRoot) {
+			throw new HttpError(403, "Mod subdirectory publishing is not enabled for this repository");
+		}
 		const authz = authorize(repo, claims, { branch, commit, version, modRoot });
 		if (!authz.ok) {
 			throw new HttpError(403, `This token may not publish ${repoName}:${branch}`, {
