@@ -9,6 +9,8 @@ const RepoConfig = z.strictObject({
 	policy: PolicySchema,
 	/** Argument for rapid-buildgit; see its usage for details. */
 	modRoot: z.string().default("/"),
+	/** Opt-in to select a subdirectory per authenticated build request. */
+	allowModRoot: z.boolean().default(false),
 	/** Argument for rapid-buildgit; see its usage for details. */
 	modinfo: z.string().default("modinfo.lua"),
 });
