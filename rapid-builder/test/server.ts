@@ -279,7 +279,9 @@ test("an authorized request runs a build and gets its log back", async () => {
 
 	// The same lines on stdout, tagged with the build they belong to.
 	const expectedBuildId = records.findLast(
-		(r) => r.msg.startsWith("Build requested: repo=testrepo branch=pr-7 ") && r.version === "1.2.3",
+		(r) =>
+			r.msg.startsWith("Build requested: repo=testrepo branch=pr-7 ") &&
+			r.version === "1.2.3",
 	)?.buildId;
 	const succeeded = await waitForRecord(
 		(r) => r.msg.startsWith("Build succeeded: testrepo:pr-7") && r.buildId === expectedBuildId,
