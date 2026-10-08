@@ -59,7 +59,7 @@ export async function runBuild(opts: {
 		const relativeRoot = path.relative(checkoutRoot, resolvedRoot);
 		if (
 			!relativeRoot ||
-			relativeRoot === ".." || relativeRoot.startsWith(`..${path.sep}`) ||
+			(relativeRoot === ".." || relativeRoot.startsWith(`..${path.sep}`)) ||
 			path.isAbsolute(relativeRoot) ||
 			!(await stat(resolvedRoot)).isDirectory()
 		) {
