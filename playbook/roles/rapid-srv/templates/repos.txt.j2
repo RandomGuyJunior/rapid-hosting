@@ -1,3 +1,6 @@
 {% for name in builder_repos %}
 {{ name }},https://{{ domain_name }}/{{ name }},,
 {% endfor %}
+{% for repo in external_repos | default([]) %}
+{{ repo.name }},{{ repo.url }},,
+{% endfor %}
