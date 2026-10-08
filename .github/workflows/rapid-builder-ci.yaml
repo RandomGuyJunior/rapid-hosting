@@ -1,6 +1,7 @@
 name: Rapid Builder CI
 
 on:
+  workflow_dispatch:
   push:
     branches: [main, dev]
     paths:
@@ -70,7 +71,7 @@ jobs:
 
   # Publish fork development images only after both test jobs pass.
   publish:
-    if: ${{ github.event_name == 'push' && github.repository == 'RandomGuyJunior/rapid-hosting' && github.ref == 'refs/heads/dev' }}
+    if: ${{ (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.repository == 'RandomGuyJunior/rapid-hosting' && github.ref == 'refs/heads/dev' }}
     needs: [ci, e2e]
     runs-on: ubuntu-latest
     permissions:
