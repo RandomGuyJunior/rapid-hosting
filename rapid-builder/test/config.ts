@@ -47,3 +47,11 @@ test("a repo name has to survive being pasted into a URL and a rapid tag", () =>
 		assert.throws(() => accepts(name), /Invalid config/, name);
 	}
 });
+
+test("mod root override is opt-in and defaults off", () => {
+	const standard = parseConfig(minimal);
+	assert.equal(standard.repos.mod?.allowModRoot, false);
+	const enabled = parseConfig(withRepo({ allowModRoot: true }));
+	assert.equal(enabled.repos.byar?.allowModRoot, true);
+	assert.throws(() => parseConfig(withRepo({ allowModRoot: "yes" })), /Invalid config/);
+});
