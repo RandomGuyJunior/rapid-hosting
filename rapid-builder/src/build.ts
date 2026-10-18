@@ -1,4 +1,4 @@
-import { mkdir, readFile, realpath, stat } from "node:fs/promises";
+import { mkdir, readFile, realpath, rm, stat } from "node:fs/promises";
 import path from "node:path";
 import { z } from "zod";
 import { refreshVersionsEdgeRule } from "./bunny.ts";
@@ -71,6 +71,16 @@ export async function runBuild(opts: {
 	}
 	const args = [gitDir, selectedRoot, repo.modinfo, storeDir, commit, repoName, branch];
 	if (version !== undefined) args.push(version);
+	// rapid-buildgit keys its incremental state by repository prefix, not mod root.
+	// Reusing that state across optional mods can publish the previous mod's files.
+	// Force a fresh source scan for mod-root builds; retain packages, pool and versions.
+	if (modRoot) {
+		await step("reset_incremental_state", async () => {
+			const stateFile = path.join(storeDir, "last-git", `${repoName}.gz`);
+			await rm(stateFile, { force: true });
+			log(`Reset shared incremental state for ${repoName}:${branch} (${modRoot})`);
+		});
+	}
 	await step("rapid_buildgit", () => run("rapid-buildgit", args, { log }));
 
 	if (bunnyMode === "disabled") return;
