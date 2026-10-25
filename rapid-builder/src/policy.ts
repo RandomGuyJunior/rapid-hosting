@@ -6,13 +6,14 @@ export interface BuildRequest {
 	branch: string;
 	commit: string;
 	version?: string;
+	modRoot?: string;
 }
 
 /** What data is available for policy evaluation. */
 const environment = new Environment()
 	.registerVariable("claims", "map")
 	// `Request` type mirrors BuildRequest above.
-	.registerType("Request", { fields: { branch: "string", commit: "string", version: "string" } })
+	.registerType("Request", { fields: { branch: "string", commit: "string", version: "string", modRoot: "string" } })
 	.registerVariable("request", "Request");
 
 export type Policy = ParseResult;
