@@ -3,7 +3,7 @@ import path from "node:path";
 import { z } from "zod";
 import { refreshVersionsEdgeRule } from "./bunny.ts";
 import type { Config, RepoConfig } from "./config.ts";
-import { syncGitRepo } from "./git.ts";
+import { compactGitRepo, syncGitRepo } from "./git.ts";
 import { stepDuration } from "./metrics.ts";
 import { type Log, run } from "./run.ts";
 
@@ -54,6 +54,14 @@ export async function runBuild(opts: {
 	const args = [gitDir, repo.modRoot, repo.modinfo, storeDir, commit, repoName, branch];
 	if (version !== undefined) args.push(version);
 	await step("rapid_buildgit", () => run("rapid-buildgit", args, { log }));
+
+	// Compaction is maintenance, not a reason to fail a successful publish.
+	// Only compact after buildgit has finished reading the commit ancestry.
+	try {
+		await step("git_compact", () => compactGitRepo(log, gitDir, commit));
+	} catch (err) {
+		log(`Git compaction skipped: ${String(err)}`);
+	}
 
 	if (bunnyMode === "disabled") return;
 
