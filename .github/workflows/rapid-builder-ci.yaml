@@ -68,9 +68,9 @@ jobs:
 
       - run: docker run --rm rapid-build-e2e
 
-  # Only on main in the upstream repo, and only once both test jobs are green.
+  # Publish from the fork as :dev, while reserving :latest for upstream.
   publish:
-    if: ${{ github.event_name == 'push' && github.repository == 'beyond-all-reason/rapid-hosting' }}
+    if: ${{ github.event_name == 'push' }}
     needs: [ci, e2e]
     runs-on: ubuntu-latest
     permissions:
@@ -94,7 +94,8 @@ jobs:
         with:
           images: ghcr.io/${{ github.repository_owner }}/rapid-builder
           tags: |
-            type=raw,value=latest
+            type=raw,value=latest,enable=${{ github.repository == 'beyond-all-reason/rapid-hosting' }}
+            type=raw,value=dev,enable=${{ github.repository != 'beyond-all-reason/rapid-hosting' }}
             type=sha,format=long
 
       - id: build
