@@ -38,21 +38,25 @@ export async function syncGitRepo(
 		// Deepen until it is an ancestor. If it is not an ancestor (e.g. a
 		// force-push), fetch the full reachable history for a safe cold build.
 		let depth = 1;
-		while (true) {
+		for (let attempt = 0; attempt < 8; attempt++) {
 			const ancestor = await run(
 				"git",
 				["merge-base", "--is-ancestor", oldCommit, "FETCH_HEAD"],
 				{ cwd: gitDir, check: false },
 			);
 			if (ancestor.exitCode === 0) break;
-			const shallow = await run(
-				"git",
-				["rev-parse", "--is-shallow-repository"],
-				{ cwd: gitDir },
-			);
+			const shallow = await run("git", ["rev-parse", "--is-shallow-repository"], {
+				cwd: gitDir,
+			});
 			if (shallow.stdout.trim() !== "true") break;
 			depth *= 2;
 			await git("fetch", "--no-tags", `--depth=${depth}`, "origin", commit);
+			if (attempt === 7) {
+				// The previous commit may be on a different branch. A shallow
+				// repository can remain shallow forever when fetching that branch.
+				// Never loop indefinitely on a diverged history.
+				await git("fetch", "--no-tags", "--unshallow", "origin", commit);
+			}
 		}
 	}
 
