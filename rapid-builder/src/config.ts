@@ -9,6 +9,8 @@ const RepoConfig = z.strictObject({
 	policy: PolicySchema,
 	/** Argument for rapid-buildgit; see its usage for details. */
 	modRoot: z.string().default("/"),
+	/** Backward-compatible setting; modRoot is accepted dynamically. */
+	allowModRoot: z.boolean().optional(),
 	/** Argument for rapid-buildgit; see its usage for details. */
 	modinfo: z.string().default("modinfo.lua"),
 });
