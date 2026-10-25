@@ -31,7 +31,10 @@ const BuildParams = z.strictObject({
 	/** Full sha of the commit to build. The caller resolves the ref it wants. */
 	commit: z.string().regex(/^[0-9a-f]{40}$/),
 	/** Mod folder selected by the approved source repository. */
-	modRoot: z.string().regex(/^[a-zA-Z0-9_-]+(?:\/[a-zA-Z0-9_-]+)*$/).optional(),
+	modRoot: z
+		.string()
+		.regex(/^[a-zA-Z0-9_-]+(?:\/[a-zA-Z0-9_-]+)*$/)
+		.optional(),
 });
 
 /** Error codes that can be returned before the token is verified. */
