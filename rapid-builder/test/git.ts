@@ -12,7 +12,7 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { after, test } from "node:test";
-import { syncGitRepo } from "../src/git.ts";
+import { compactGitRepo, syncGitRepo } from "../src/git.ts";
 
 const work = await mkdtemp(path.join(tmpdir(), "rapid-build-git-"));
 after(() => rm(work, { recursive: true, force: true }));
@@ -69,11 +69,11 @@ const head = (gitDir: string) => git(["rev-parse", "HEAD"], gitDir);
 const gitDir = path.join(work, "checkout");
 await mkdir(path.dirname(gitDir), { recursive: true });
 
-test("the first sync clones and lands on the requested commit", async () => {
+test("the first sync initializes a shallow checkout at the requested commit", async () => {
 	const lines = await sync(gitDir, masterSha);
 	assert.ok(
-		lines.some((l) => l.startsWith("$ git clone ")),
-		"cloned",
+		lines.some((l) => l.startsWith("$ git init ")),
+		"initialized",
 	);
 	assert.equal(head(gitDir), masterSha);
 	assert.equal(await readFile(path.join(gitDir, "tracked.txt"), "utf8"), "original\n");
@@ -81,7 +81,7 @@ test("the first sync clones and lands on the requested commit", async () => {
 
 test("a commit that lives only under refs/pull/7/head is fetched by bare sha", async () => {
 	const lines = await sync(gitDir, prSha);
-	assert.ok(!lines.some((l) => l.startsWith("$ git clone ")), "reused the checkout");
+	assert.ok(!lines.some((l) => l.startsWith("$ git init ")), "reused the checkout");
 	assert.equal(head(gitDir), prSha, "no ref names it, only the sha does");
 });
 
@@ -123,6 +123,19 @@ test("a moved origin is followed", async () => {
 
 	assert.equal(git(["remote", "get-url", "origin"], gitDir), `file://${movedDir}`);
 	assert.equal(head(gitDir), prSha);
+});
+
+
+test("compaction drops old ancestry without breaking the next incremental sync", async () => {
+	const checkout = path.join(work, "compact-checkout");
+	await sync(checkout, masterSha);
+	await compactGitRepo(() => {}, checkout, masterSha);
+	assert.equal(git(["rev-parse", "--is-shallow-repository"], checkout), "true");
+	await sync(checkout, prSha);
+	assert.equal(git(["merge-base", "--is-ancestor", masterSha, prSha], checkout), "");
+	await compactGitRepo(() => {}, checkout, prSha);
+	assert.equal(head(checkout), prSha);
+	assert.equal(git(["rev-parse", "--is-shallow-repository"], checkout), "true");
 });
 
 // --- Cases that need a checkout of their own ---------------------------------
