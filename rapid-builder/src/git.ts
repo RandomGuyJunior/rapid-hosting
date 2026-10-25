@@ -1,7 +1,7 @@
 import { rename, rm } from "node:fs/promises";
 import { type Log, run } from "./run.ts";
 
-/** Synchonizes the working copy at gitDir to clean state at the given commit */
+/** Synchronize a checkout without downloading the origin's entire history. */
 export async function syncGitRepo(
 	log: Log,
 	gitDir: string,
@@ -12,22 +12,62 @@ export async function syncGitRepo(
 		check: false,
 	});
 	if (isRepo.exitCode !== 0) {
-		// Clone via tmp + atomic rename so a crash mid-clone leaves no partial
-		// gitDir behind. --no-checkout keeps the flow uniform with later runs:
-		// the checkout/submodule/clean steps below handle the rest.
 		const tmpDir = `${gitDir}.tmp`;
 		await rm(tmpDir, { recursive: true, force: true });
-		await run("git", ["clone", "--no-checkout", url, tmpDir], { log });
-		await rename(tmpDir, gitDir);
+		try {
+			await run("git", ["init", tmpDir], { log });
+			await run("git", ["-C", tmpDir, "remote", "add", "origin", url], { log });
+			await rename(tmpDir, gitDir);
+		} catch (err) {
+			await rm(tmpDir, { recursive: true, force: true });
+			throw err;
+		}
 	}
 
 	const git = (...args: string[]) => run("git", args, { cwd: gitDir, log });
+	const previous = await run("git", ["rev-parse", "--verify", "HEAD"], {
+		cwd: gitDir,
+		check: false,
+	});
 	await git("remote", "set-url", "origin", url);
-	await git("fetch", "origin", commit);
+	await git("fetch", "--no-tags", "--depth=1", "origin", commit);
+
+	if (previous.exitCode === 0 && previous.stdout.trim() !== commit) {
+		const oldCommit = previous.stdout.trim();
+		// A shallow boundary can hide the previous build from rapid-buildgit.
+		// Deepen until it is an ancestor. If it is not an ancestor (e.g. a
+		// force-push), fetch the full reachable history for a safe cold build.
+		let depth = 1;
+		while (true) {
+			const ancestor = await run(
+				"git",
+				["merge-base", "--is-ancestor", oldCommit, "FETCH_HEAD"],
+				{ cwd: gitDir, check: false },
+			);
+			if (ancestor.exitCode === 0) break;
+			const shallow = await run(
+				"git",
+				["rev-parse", "--is-shallow-repository"],
+				{ cwd: gitDir },
+			);
+			if (shallow.stdout.trim() !== "true") break;
+			depth *= 2;
+			await git("fetch", "--no-tags", `--depth=${depth}`, "origin", commit);
+		}
+	}
+
 	await git("checkout", "--detach", "--force", "FETCH_HEAD");
 	await git("submodule", "sync", "--recursive");
-	await git("submodule", "update", "--init", "--recursive", "--force");
+	await git("submodule", "update", "--init", "--recursive", "--force", "--depth=1");
 	await git("submodule", "foreach", "--recursive", "git", "reset", "--hard");
 	await git("clean", "-xffd");
 	await git("submodule", "foreach", "--recursive", "git", "clean", "-xffd");
+}
+
+/** Drop ancestry after a successful build; the current commit stays available. */
+export async function compactGitRepo(log: Log, gitDir: string, commit: string): Promise<void> {
+	const git = (...args: string[]) => run("git", args, { cwd: gitDir, log });
+	await git("fetch", "--no-tags", "--depth=1", "origin", commit);
+	await git("reflog", "expire", "--expire=now", "--all");
+	await git("gc", "--prune=now");
 }
