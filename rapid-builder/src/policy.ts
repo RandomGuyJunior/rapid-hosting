@@ -13,7 +13,9 @@ export interface BuildRequest {
 const environment = new Environment()
 	.registerVariable("claims", "map")
 	// `Request` type mirrors BuildRequest above.
-	.registerType("Request", { fields: { branch: "string", commit: "string", version: "string", modRoot: "string" } })
+	.registerType("Request", {
+		fields: { branch: "string", commit: "string", version: "string", modRoot: "string" },
+	})
 	.registerVariable("request", "Request");
 
 export type Policy = ParseResult;
