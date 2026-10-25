@@ -125,7 +125,6 @@ test("a moved origin is followed", async () => {
 	assert.equal(head(gitDir), prSha);
 });
 
-
 test("compaction drops old ancestry without breaking the next incremental sync", async () => {
 	const checkout = path.join(work, "compact-checkout");
 	await sync(checkout, masterSha);
