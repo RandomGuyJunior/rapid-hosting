@@ -57,8 +57,16 @@ export async function runBuild(opts: {
 		const checkoutRoot = await realpath(gitDir);
 		const resolvedRoot = await realpath(path.join(checkoutRoot, modRoot));
 		const relativeRoot = path.relative(checkoutRoot, resolvedRoot);
-		if (!relativeRoot || relativeRoot === ".." || relativeRoot.startsWith(`..${path.sep}`) || path.isAbsolute(relativeRoot) || !(await stat(resolvedRoot)).isDirectory()) {
-			throw new Error("Invalid mod directory: must be an existing directory within the source repository");
+		if (
+			!relativeRoot ||
+			relativeRoot === ".." ||
+			relativeRoot.startsWith(`..${path.sep}`) ||
+			path.isAbsolute(relativeRoot) ||
+			!(await stat(resolvedRoot)).isDirectory()
+		) {
+			throw new Error(
+				"Invalid mod directory: must be an existing directory within the source repository",
+			);
 		}
 		// Incremental scan state is shared by repo, so clear it when selecting a mod folder.
 		// Published packages, content pool and versions remain untouched.
